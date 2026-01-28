@@ -1,0 +1,38 @@
+# Go
+go/bin/
+go/vendor/
+
+# Python
+python/__pycache__/
+python/*.egg-info/
+python/dist/
+python/build/
+python/.eggs/
+python/*.pyc
+python/.pytest_cache/
+python/.coverage
+python/coverage.xml
+python/.mypy_cache/
+python/.ruff_cache/
+python/.venv/
+python/.python-version
+
+# Java
+java/target/
+java/*.class
+java/*.jar
+java/*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+*.kubeconfig

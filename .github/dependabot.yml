@@ -1,0 +1,65 @@
+version: 2
+updates:
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "docker"
+
+  # Go
+  - package-ecosystem: "gomod"
+    directory: "/go"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "go"
+    groups:
+      kubernetes:
+        patterns:
+          - "k8s.io/*"
+      testcontainers:
+        patterns:
+          - "github.com/testcontainers/*"
+
+  # Python (uv)
+  - package-ecosystem: "uv"
+    directory: "/python"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "python"
+    groups:
+      test:
+        patterns:
+          - "pytest*"
+          - "ruff"
+          - "mypy"
+
+  # Java
+  - package-ecosystem: "maven"
+    directory: "/java"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "java"
+    groups:
+      testcontainers:
+        patterns:
+          - "org.testcontainers:*"
+      junit:
+        patterns:
+          - "org.junit*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns:
+          - "*"
