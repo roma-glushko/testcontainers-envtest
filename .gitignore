@@ -33,6 +33,7 @@ java/*.log
 # OS
 .DS_Store
 Thumbs.db
+tmp
 
 # Test artifacts
 *.kubeconfig
