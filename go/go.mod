@@ -1,8 +1,8 @@
 module github.com/roma-glushko/testcontainers-envtest/go
 
-go 1.22.0
+go 1.25.0
 
-toolchain go1.24.4
+toolchain go1.25.6
 
 require (
 	github.com/testcontainers/testcontainers-go v0.34.0
