@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import tempfile
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
@@ -46,8 +46,8 @@ class EnvtestContainer(DockerContainer):
 
     def __init__(
         self,
-        image: Optional[str] = None,
-        kubernetes_version: Optional[str] = None,
+        image: str | None = None,
+        kubernetes_version: str | None = None,
         **kwargs: object,
     ) -> None:
         self._kubernetes_version = kubernetes_version or self.DEFAULT_KUBERNETES_VERSION
@@ -62,7 +62,7 @@ class EnvtestContainer(DockerContainer):
         super().__init__(image=image, **kwargs)
         self.with_exposed_ports(self.API_SERVER_PORT)
 
-    def start(self) -> "EnvtestContainer":
+    def start(self) -> EnvtestContainer:
         """Start the envtest container and wait for it to be ready."""
         super().start()
         # Wait for the container to be ready
@@ -130,7 +130,7 @@ class EnvtestContainer(DockerContainer):
             f.write(kubeconfig)
             return f.name
 
-    def get_kubernetes_client(self) -> "k8s_client.ApiClient":
+    def get_kubernetes_client(self) -> k8s_client.ApiClient:
         """
         Get a configured Kubernetes API client.
 

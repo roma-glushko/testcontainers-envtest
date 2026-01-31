@@ -6,6 +6,7 @@ package envtest
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -47,7 +48,7 @@ func Run(ctx context.Context, opts ...Option) (*EnvtestContainer, error) {
 	// If a specific kubernetes version is requested, use the versioned image tag
 	image := cfg.image
 	if cfg.kubernetesVersion != DefaultKubernetesVersion && cfg.image == DefaultImage {
-		image = fmt.Sprintf("ghcr.io/roma-glushko/testcontainers-envtest:v%s", cfg.kubernetesVersion)
+		image = "ghcr.io/roma-glushko/testcontainers-envtest:v" + cfg.kubernetesVersion
 	}
 
 	req := testcontainers.ContainerRequest{
@@ -80,16 +81,20 @@ func (c *EnvtestContainer) GetKubeconfig(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to copy kubeconfig from container: %w", err)
 	}
-	defer reader.Close()
+
+	defer func() { _ = reader.Close() }()
 
 	// Read all content
 	buf := make([]byte, 0, 4096)
+
 	tmp := make([]byte, 1024)
+
 	for {
 		n, err := reader.Read(tmp)
 		if n > 0 {
 			buf = append(buf, tmp[:n]...)
 		}
+
 		if err != nil {
 			break
 		}
@@ -156,27 +161,21 @@ func replaceServerURL(kubeconfig, newURL string) string {
 	// Simple string replacement for the server URL
 	// The kubeconfig format has "server: https://localhost:PORT"
 	result := kubeconfig
+
 	for _, oldHost := range []string{"localhost", "127.0.0.1"} {
 		oldURL := fmt.Sprintf("server: https://%s:", oldHost)
-		if idx := findSubstring(result, oldURL); idx >= 0 {
+		if idx := strings.Index(result, oldURL); idx >= 0 {
 			// Find the end of the line
 			endIdx := idx + len(oldURL)
 			for endIdx < len(result) && result[endIdx] != '\n' && result[endIdx] != '\r' {
 				endIdx++
 			}
+
 			result = result[:idx] + "server: " + newURL + result[endIdx:]
+
 			break
 		}
 	}
-	return result
-}
 
-// findSubstring returns the index of substr in s, or -1 if not found
-func findSubstring(s, substr string) int {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return i
-		}
-	}
-	return -1
+	return result
 }

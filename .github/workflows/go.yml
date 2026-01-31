@@ -23,16 +23,16 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.22'
+          go-version: '1.25'
           cache-dependency-path: go/go.sum
 
       - name: Download dependencies
         working-directory: ./go
-        run: go mod download
+        run: make lint
 
       - name: Run tests
         working-directory: ./go
-        run: go test -v -race -coverprofile=coverage.out ./...
+        run: make test
 
       - name: Upload coverage
         uses: codecov/codecov-action@v5
@@ -50,11 +50,5 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.22'
+          go-version: '1.25'
           cache-dependency-path: go/go.sum
-
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: latest
-          working-directory: ./go

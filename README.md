@@ -9,13 +9,13 @@ A [Testcontainers](https://testcontainers.org/) integration for [envtest](https:
 
 ## Why Envtest?
 
-| Feature | Envtest | K3s |
-|---------|---------|-----|
-| Components | kube-apiserver + etcd only | Full Kubernetes distribution |
-| Startup time | ~2-5 seconds | ~15-30 seconds |
-| Privileged | No | Yes (required) |
-| Use case | Controller/operator unit tests | Full cluster integration tests |
-| Resource usage | Minimal | Higher |
+| Feature        | Envtest                        | K3s                            |
+|----------------|--------------------------------|--------------------------------|
+| Components     | kube-apiserver + etcd only     | Full Kubernetes distribution   |
+| Startup time   | ~2-5 seconds                   | ~15-30 seconds                 |
+| Privileged     | No                             | Yes (required)                 |
+| Use case       | Controller/operator unit tests | Full cluster integration tests |
+| Resource usage | Minimal                        | Higher                         |
 
 Envtest provides a faster and lighter alternative to full Kubernetes clusters (like K3s) for testing controllers and operators. It only runs the components you need for controller testing: the Kubernetes API server and etcd.
 
@@ -27,10 +27,9 @@ Envtest provides a faster and lighter alternative to full Kubernetes clusters (l
 
 ## Supported Kubernetes Versions
 
-- 1.27.x
-- 1.28.x
-- 1.29.x
-- 1.30.x
+- 1.34.x
+- 1.33.x
+- 1.32.x
 - 1.31.x
 
 ## Installation
