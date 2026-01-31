@@ -7,6 +7,7 @@ ETCD_PORT="${ETCD_PORT:-2379}"
 API_SERVER_PORT="${API_SERVER_PORT:-6443}"
 KUBECONFIG_PATH="${KUBECONFIG_PATH:-/tmp/kubeconfig}"
 DATA_DIR="/tmp/envtest"
+CERTS_CONF_DIR="/etc/envtest/certs"
 
 # Create data directory
 mkdir -p "${DATA_DIR}"
@@ -39,36 +40,19 @@ fi
 echo "Generating certificates..."
 mkdir -p "${DATA_DIR}/certs"
 
-# Generate CA
+# Generate CA with key usage extension (required for Python 3.13+)
 openssl genrsa -out "${DATA_DIR}/certs/ca.key" 2048 2>/dev/null
 openssl req -x509 -new -nodes -key "${DATA_DIR}/certs/ca.key" \
     -subj "/CN=envtest-ca" \
-    -days 365 -out "${DATA_DIR}/certs/ca.crt" 2>/dev/null
+    -days 365 -out "${DATA_DIR}/certs/ca.crt" \
+    -config "${CERTS_CONF_DIR}/ca.conf" 2>/dev/null
 
 # Generate API server certificate
 openssl genrsa -out "${DATA_DIR}/certs/apiserver.key" 2048 2>/dev/null
-cat > "${DATA_DIR}/certs/apiserver.csr.conf" <<EOF
-[req]
-req_extensions = v3_req
-distinguished_name = req_distinguished_name
-[req_distinguished_name]
-[v3_req]
-basicConstraints = CA:FALSE
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = localhost
-DNS.2 = kubernetes
-DNS.3 = kubernetes.default
-DNS.4 = kubernetes.default.svc
-IP.1 = 127.0.0.1
-IP.2 = 0.0.0.0
-EOF
-
 openssl req -new -key "${DATA_DIR}/certs/apiserver.key" \
     -subj "/CN=kube-apiserver" \
     -out "${DATA_DIR}/certs/apiserver.csr" \
-    -config "${DATA_DIR}/certs/apiserver.csr.conf" 2>/dev/null
+    -config "${CERTS_CONF_DIR}/apiserver.conf" 2>/dev/null
 
 openssl x509 -req -in "${DATA_DIR}/certs/apiserver.csr" \
     -CA "${DATA_DIR}/certs/ca.crt" \
@@ -77,19 +61,22 @@ openssl x509 -req -in "${DATA_DIR}/certs/apiserver.csr" \
     -out "${DATA_DIR}/certs/apiserver.crt" \
     -days 365 \
     -extensions v3_req \
-    -extfile "${DATA_DIR}/certs/apiserver.csr.conf" 2>/dev/null
+    -extfile "${CERTS_CONF_DIR}/apiserver.conf" 2>/dev/null
 
 # Generate client certificate for kubeconfig
 openssl genrsa -out "${DATA_DIR}/certs/client.key" 2048 2>/dev/null
 openssl req -new -key "${DATA_DIR}/certs/client.key" \
     -subj "/CN=admin/O=system:masters" \
-    -out "${DATA_DIR}/certs/client.csr" 2>/dev/null
+    -out "${DATA_DIR}/certs/client.csr" \
+    -config "${CERTS_CONF_DIR}/client.conf" 2>/dev/null
 openssl x509 -req -in "${DATA_DIR}/certs/client.csr" \
     -CA "${DATA_DIR}/certs/ca.crt" \
     -CAkey "${DATA_DIR}/certs/ca.key" \
     -CAcreateserial \
     -out "${DATA_DIR}/certs/client.crt" \
-    -days 365 2>/dev/null
+    -days 365 \
+    -extensions v3_req \
+    -extfile "${CERTS_CONF_DIR}/client.conf" 2>/dev/null
 
 echo "Certificates generated successfully"
 

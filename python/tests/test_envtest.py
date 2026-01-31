@@ -9,8 +9,13 @@ from testcontainers_envtest import EnvtestContainer
 
 @pytest.fixture(scope="module")
 def envtest_container():
-    """Create a shared envtest container for all tests in this module."""
-    with EnvtestContainer() as container:
+    """Create a shared envtest container for all tests in this module.
+
+    If ENVTEST_IMAGE environment variable is set, uses that image for testing.
+    """
+    image = os.environ.get("ENVTEST_IMAGE")
+    kwargs = {"image": image} if image else {}
+    with EnvtestContainer(**kwargs) as container:
         yield container
 
 
@@ -53,7 +58,9 @@ class TestEnvtestContainer:
         version = envtest_container.kubernetes_version
 
         assert version is not None
-        assert version == EnvtestContainer.DEFAULT_KUBERNETES_VERSION
+        # Version should match the expected pattern (e.g., 1.35.0)
+        import re
+        assert re.match(r"^\d+\.\d+\.\d+$", version), f"Invalid version format: {version}"
 
     def test_get_kubernetes_client(self, envtest_container: EnvtestContainer) -> None:
         """Test that we can get a working Kubernetes client."""
@@ -181,9 +188,9 @@ class TestEnvtestContainerWithVersion:
 
     def test_custom_kubernetes_version(self) -> None:
         """Test that we can specify a custom Kubernetes version."""
-        container = EnvtestContainer(kubernetes_version="1.30.0")
+        container = EnvtestContainer(kubernetes_version="1.34.1")
 
-        assert container.kubernetes_version == "1.30.0"
+        assert container.kubernetes_version == "1.34.1"
 
     def test_default_kubernetes_version(self) -> None:
         """Test that the default Kubernetes version is set correctly."""

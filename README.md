@@ -27,6 +27,7 @@ Envtest provides a faster and lighter alternative to full Kubernetes clusters (l
 
 ## Supported Kubernetes Versions
 
+- 1.35.x
 - 1.34.x
 - 1.33.x
 - 1.32.x
@@ -110,7 +111,7 @@ func TestMyController(t *testing.T) {
 
 ```go
 container, err := envtest.Run(ctx,
-    envtest.WithKubernetesVersion("1.30.0"),
+    envtest.WithKubernetesVersion("1.35.0"),
 )
 ```
 
@@ -145,7 +146,7 @@ def test_my_controller(envtest):
 #### With a specific Kubernetes version
 
 ```python
-with EnvtestContainer(kubernetes_version="1.30.0") as envtest:
+with EnvtestContainer(kubernetes_version="1.35.0") as envtest:
     # ...
 ```
 
@@ -186,7 +187,7 @@ class MyControllerTest {
 
 ```java
 @Container
-static EnvtestContainer envtest = new EnvtestContainer("1.30.0");
+static EnvtestContainer envtest = new EnvtestContainer("1.35.0");
 ```
 
 ## Docker Image
@@ -197,7 +198,7 @@ The Docker image is available on GitHub Container Registry:
 docker pull ghcr.io/roma-glushko/testcontainers-envtest:latest
 
 # Or a specific Kubernetes version
-docker pull ghcr.io/roma-glushko/testcontainers-envtest:v1.31.0
+docker pull ghcr.io/roma-glushko/testcontainers-envtest:v1.35.0
 ```
 
 ### Running standalone

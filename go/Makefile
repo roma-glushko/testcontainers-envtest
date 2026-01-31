@@ -1,4 +1,4 @@
-.PHONY: install tools test lint build clean help
+.PHONY: install tools test test-integration lint build clean help
 
 TMP_DIR := $(PWD)/../tmp
 BIN_DIR := $(TMP_DIR)/bin
@@ -22,6 +22,10 @@ tools: ## Install development tools
 test: ## Run tests
 	@echo "==> Running Go tests..."
 	@go test -v -race -coverprofile=coverage.out ./...
+
+test-integration: ## Run integration tests (requires Docker, supports ENVTEST_IMAGE)
+	@echo "==> Running Go integration tests..."
+	@go test -v -race ./...
 
 lint: tools ## Run linters
 	@echo "==> Tidying go.mod..."

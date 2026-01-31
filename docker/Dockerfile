@@ -36,7 +36,8 @@ RUN apk add --no-cache bash curl jq openssl
 # Copy envtest binaries from builder
 COPY --from=builder /envtest-bins /usr/local/bin/envtest
 
-# Copy entrypoint script
+# Copy certificate configs and entrypoint script
+COPY certs /etc/envtest/certs
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
