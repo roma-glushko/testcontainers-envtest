@@ -6,7 +6,7 @@
 .PHONY: image build-docker-all
 
 # Configuration
-K8S_VERSION ?= 1.31.4
+K8S_VERSION ?= 1.35.0
 IMAGE_NAME ?= ghcr.io/roma-glushko/testcontainers-envtest
 
 help: ## Show this help
@@ -92,18 +92,18 @@ image: ## Build Docker image (K8S_VERSION=x.y.z)
 
 build-docker-all: ## Build Docker images for all K8s versions
 	@echo "==> Building Docker images for all versions..."
-	@for version in 1.27.16 1.28.15 1.29.12 1.30.8 1.31.4; do \
+	@for version in 1.31.0 1.32.0 1.33.0 1.34.1 1.35.0; do \
 		echo "Building for Kubernetes $$version..."; \
 		docker build -t $(IMAGE_NAME):v$$version \
 			--build-arg KUBERNETES_VERSION=$$version \
 			./docker; \
 	done
-	docker tag $(IMAGE_NAME):v1.31.4 $(IMAGE_NAME):latest
+	docker tag $(IMAGE_NAME):v1.35.0 $(IMAGE_NAME):latest
 	@echo "==> Built all images"
 
 test-docker: ## Build and test Docker image
 	@echo "==> Building and testing Docker image..."
-	docker build -t envtest:test --build-arg KUBERNETES_VERSION=1.31.0 ./docker
+	docker build -t envtest:test --build-arg KUBERNETES_VERSION=1.35.0 ./docker
 	@echo "==> Starting container..."
 	docker run -d --name envtest-test -p 6443:6443 envtest:test
 	@echo "==> Waiting for API server..."
