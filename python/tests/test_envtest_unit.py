@@ -2,8 +2,6 @@
 
 import re
 
-import pytest
-
 from testcontainers_envtest import EnvtestContainer
 
 
@@ -12,7 +10,8 @@ class TestEnvtestContainerUnit:
 
     def test_default_image(self) -> None:
         """Test that the default image is set correctly."""
-        assert EnvtestContainer.DEFAULT_IMAGE == "ghcr.io/roma-glushko/testcontainers-envtest:latest"
+        expected = "ghcr.io/roma-glushko/testcontainers-envtest:latest"
+        assert EnvtestContainer.DEFAULT_IMAGE == expected
 
     def test_default_kubernetes_version(self) -> None:
         """Test that the default Kubernetes version is set correctly."""
@@ -62,9 +61,8 @@ class TestEnvtestContainerUnit:
         """Test that the API server port is exposed."""
         container = EnvtestContainer()
 
-        # Check that exposed_ports contains the API server port
-        exposed_ports = container.exposed_ports
-        assert EnvtestContainer.API_SERVER_PORT in exposed_ports
+        # Check that ports contains the API server port (set by with_exposed_ports)
+        assert EnvtestContainer.API_SERVER_PORT in container.ports
 
 
 class TestKubeconfigParsing:
