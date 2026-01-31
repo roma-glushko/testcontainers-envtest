@@ -27,11 +27,10 @@ Envtest provides a faster and lighter alternative to full Kubernetes clusters (l
 
 ## Supported Kubernetes Versions
 
+- 1.34.x
+- 1.33.x
+- 1.32.x
 - 1.31.x
-- 1.30.x
-- 1.29.x
-- 1.28.x
-- 1.27.x
 
 ## Installation
 
