@@ -13,6 +13,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,12 +23,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link EnvtestContainer}.
+ *
+ * <p>The ENVTEST_IMAGE environment variable can be set to test against a custom image.</p>
  */
 @Testcontainers
 class EnvtestContainerTest {
 
     @Container
-    static EnvtestContainer envtest = new EnvtestContainer();
+    static EnvtestContainer envtest = createEnvtestContainer();
+
+    /**
+     * Creates an EnvtestContainer, optionally using a custom image from ENVTEST_IMAGE env var.
+     */
+    private static EnvtestContainer createEnvtestContainer() {
+        String customImage = System.getenv("ENVTEST_IMAGE");
+        if (customImage != null && !customImage.isEmpty()) {
+            return new EnvtestContainer(DockerImageName.parse(customImage));
+        }
+        return new EnvtestContainer();
+    }
 
     @Test
     void shouldReturnApiServerUrl() {
@@ -42,7 +56,9 @@ class EnvtestContainerTest {
     void shouldReturnKubernetesVersion() {
         String version = envtest.getKubernetesVersion();
 
-        assertThat(version).isEqualTo(EnvtestContainer.DEFAULT_KUBERNETES_VERSION);
+        // Version should be non-empty and match pattern like "1.35.0"
+        assertThat(version).isNotEmpty();
+        assertThat(version).matches("\\d+\\.\\d+\\.\\d+");
     }
 
     @Test

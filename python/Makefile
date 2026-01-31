@@ -1,4 +1,4 @@
-.PHONY: install test lint build clean help
+.PHONY: install test test-integration lint build clean help
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -10,6 +10,10 @@ install: ## Install dependencies
 test: ## Run tests
 	@echo "==> Running Python tests..."
 	@uv run --group test pytest -v --cov=testcontainers_envtest --cov-report=term-missing
+
+test-integration: ## Run integration tests (requires Docker, supports ENVTEST_IMAGE)
+	@echo "==> Running Python integration tests..."
+	@uv run --group test pytest -v -m integration
 
 lint: ## Run linters
 	@echo "==> Running ruff..."
