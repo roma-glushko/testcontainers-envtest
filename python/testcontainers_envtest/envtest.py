@@ -40,7 +40,7 @@ class EnvtestContainer(DockerContainer):
     """
 
     DEFAULT_IMAGE = "ghcr.io/roma-glushko/testcontainers-envtest:latest"
-    DEFAULT_KUBERNETES_VERSION = "1.31.0"
+    DEFAULT_KUBERNETES_VERSION = "1.35.0"
     API_SERVER_PORT = 6443
     KUBECONFIG_PATH = "/tmp/kubeconfig"
 

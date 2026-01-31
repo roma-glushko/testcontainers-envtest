@@ -15,7 +15,7 @@ class TestEnvtestContainerUnit:
 
     def test_default_kubernetes_version(self) -> None:
         """Test that the default Kubernetes version is set correctly."""
-        assert EnvtestContainer.DEFAULT_KUBERNETES_VERSION == "1.31.0"
+        assert EnvtestContainer.DEFAULT_KUBERNETES_VERSION == "1.35.0"
 
     def test_api_server_port(self) -> None:
         """Test that the API server port is set correctly."""
@@ -34,11 +34,11 @@ class TestEnvtestContainerUnit:
 
     def test_custom_kubernetes_version(self) -> None:
         """Test container initialization with custom Kubernetes version."""
-        container = EnvtestContainer(kubernetes_version="1.30.0")
+        container = EnvtestContainer(kubernetes_version="1.34.1")
 
-        assert container.kubernetes_version == "1.30.0"
+        assert container.kubernetes_version == "1.34.1"
         # Should use versioned image tag
-        assert "v1.30.0" in container.image
+        assert "v1.34.1" in container.image
 
     def test_custom_image(self) -> None:
         """Test container initialization with custom image."""
@@ -50,12 +50,12 @@ class TestEnvtestContainerUnit:
     def test_custom_image_overrides_version(self) -> None:
         """Test that custom image takes precedence over version-based image."""
         custom_image = "my-registry/envtest:custom"
-        container = EnvtestContainer(image=custom_image, kubernetes_version="1.30.0")
+        container = EnvtestContainer(image=custom_image, kubernetes_version="1.34.1")
 
         # Custom image should be used, not version-based image
         assert container.image == custom_image
         # But kubernetes_version property should still reflect the set version
-        assert container.kubernetes_version == "1.30.0"
+        assert container.kubernetes_version == "1.34.1"
 
     def test_exposed_ports(self) -> None:
         """Test that the API server port is exposed."""

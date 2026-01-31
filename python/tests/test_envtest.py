@@ -181,9 +181,9 @@ class TestEnvtestContainerWithVersion:
 
     def test_custom_kubernetes_version(self) -> None:
         """Test that we can specify a custom Kubernetes version."""
-        container = EnvtestContainer(kubernetes_version="1.30.0")
+        container = EnvtestContainer(kubernetes_version="1.34.1")
 
-        assert container.kubernetes_version == "1.30.0"
+        assert container.kubernetes_version == "1.34.1"
 
     def test_default_kubernetes_version(self) -> None:
         """Test that the default Kubernetes version is set correctly."""

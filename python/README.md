@@ -82,7 +82,7 @@ with EnvtestContainer() as envtest:
 from testcontainers_envtest import EnvtestContainer
 
 # Use a specific Kubernetes version
-with EnvtestContainer(kubernetes_version="1.30.0") as envtest:
+with EnvtestContainer(kubernetes_version="1.35.0") as envtest:
     print(f"Running Kubernetes {envtest.kubernetes_version}")
 ```
 
