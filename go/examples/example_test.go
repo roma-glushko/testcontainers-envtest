@@ -52,7 +52,7 @@ func Example_withVersion() {
 
 	// Start an envtest container with a specific Kubernetes version
 	container, err := envtest.Run(ctx,
-		envtest.WithKubernetesVersion("1.30.0"),
+		envtest.WithKubernetesVersion("1.35.0"),
 	)
 	if err != nil {
 		log.Fatalf("failed to start envtest container: %v", err)

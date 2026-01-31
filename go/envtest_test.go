@@ -88,7 +88,7 @@ func TestEnvtestContainerWithKubernetesVersion(t *testing.T) {
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Minute)
 	defer cancel()
 
-	container, err := envtest.Run(ctx, envtest.WithKubernetesVersion("1.30.0"))
+	container, err := envtest.Run(ctx, envtest.WithKubernetesVersion("1.35.0"))
 	require.NoError(t, err, "failed to start envtest container")
 
 	defer func() {
@@ -96,5 +96,5 @@ func TestEnvtestContainerWithKubernetesVersion(t *testing.T) {
 		require.NoError(t, err)
 	}()
 
-	require.Equal(t, "1.30.0", container.GetKubernetesVersion())
+	require.Equal(t, "1.35.0", container.GetKubernetesVersion())
 }

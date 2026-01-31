@@ -23,7 +23,7 @@ func TestWithKubernetesVersion(t *testing.T) {
 		kubernetesVersion: DefaultKubernetesVersion,
 	}
 
-	version := "1.30.0"
+	version := "1.35.0"
 	WithKubernetesVersion(version)(cfg)
 
 	require.Equal(t, version, cfg.kubernetesVersion)
