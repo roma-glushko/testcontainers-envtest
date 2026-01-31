@@ -41,7 +41,7 @@
         <testcontainers.version>1.21.4</testcontainers.version>
         <fabric8.version>7.5.2</fabric8.version>
         <junit.version>6.0.2</junit.version>
-        <slf4j.version>2.0.16</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
     </properties>
 
     <dependencies>
