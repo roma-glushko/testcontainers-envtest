@@ -1,7 +1,7 @@
 # Multi-stage build for envtest container
 # Supports multiple Kubernetes versions via build arg
 
-ARG GO_VERSION=1.22
+ARG GO_VERSION=1.25
 ARG ALPINE_VERSION=3.19
 ARG KUBERNETES_VERSION=1.31.0
 
