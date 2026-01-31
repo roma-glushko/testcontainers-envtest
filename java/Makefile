@@ -1,4 +1,4 @@
-.PHONY: install test lint build clean help
+.PHONY: install test test-integration lint build clean help
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -7,8 +7,12 @@ install: ## Install dependencies
 	@echo "==> Installing Java dependencies..."
 	@mvn -B dependency:resolve
 
-test: ## Run tests
-	@echo "==> Running Java tests..."
+test: ## Run unit tests (excludes integration tests)
+	@echo "==> Running Java unit tests..."
+	@mvn -B test -Dtest='!EnvtestContainerTest'
+
+test-integration: ## Run integration tests (requires Docker image)
+	@echo "==> Running Java integration tests..."
 	@mvn -B test
 
 lint: ## Run linters (checkstyle)
