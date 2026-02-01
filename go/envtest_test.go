@@ -2,6 +2,7 @@ package envtest_test
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -14,11 +15,21 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// getEnvtestOptions returns options for envtest based on environment variables.
+// If ENVTEST_IMAGE is set, it will use that image for testing.
+func getEnvtestOptions() []envtest.Option {
+	var opts []envtest.Option
+	if image := os.Getenv("ENVTEST_IMAGE"); image != "" {
+		opts = append(opts, envtest.WithImage(image))
+	}
+	return opts
+}
+
 func TestEnvtestContainer(t *testing.T) {
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
-	c, err := envtest.Run(ctx)
+	c, err := envtest.Run(ctx, getEnvtestOptions()...)
 	require.NoError(t, err, "failed to start envtest container")
 
 	defer func() {

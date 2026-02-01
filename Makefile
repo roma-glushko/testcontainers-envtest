@@ -1,6 +1,7 @@
 .PHONY: all install test lint build clean help
 .PHONY: install-go install-python install-java
 .PHONY: test-go test-python test-java test-docker
+.PHONY: test-image test-integration-go test-integration-python test-integration-java
 .PHONY: lint-go lint-python lint-java
 .PHONY: build-go build-python build-java
 .PHONY: image build-docker-all
@@ -111,3 +112,22 @@ test-docker: ## Build and test Docker image
 	@curl -sk https://localhost:6443/healthz && echo " - Health check passed" || (docker logs envtest-test && docker rm -f envtest-test && exit 1)
 	@docker rm -f envtest-test
 	@echo "==> Docker test passed"
+
+# =============================================================================
+# Image Testing (cross-language integration tests)
+# =============================================================================
+
+test-image: ## Test envtest image against all language test suites (ENVTEST_IMAGE=...)
+	@echo "==> Testing image: $(ENVTEST_IMAGE)"
+	@ENVTEST_IMAGE=$(ENVTEST_IMAGE) $(MAKE) test-integration-go
+	@ENVTEST_IMAGE=$(ENVTEST_IMAGE) $(MAKE) test-integration-python
+	@ENVTEST_IMAGE=$(ENVTEST_IMAGE) $(MAKE) test-integration-java
+
+test-integration-go: ## Run Go integration tests (supports ENVTEST_IMAGE)
+	@ENVTEST_IMAGE=$(ENVTEST_IMAGE) $(MAKE) -C go test-integration
+
+test-integration-python: ## Run Python integration tests (supports ENVTEST_IMAGE)
+	@ENVTEST_IMAGE=$(ENVTEST_IMAGE) $(MAKE) -C python test-integration
+
+test-integration-java: ## Run Java integration tests (supports ENVTEST_IMAGE)
+	@ENVTEST_IMAGE=$(ENVTEST_IMAGE) $(MAKE) -C java test-integration

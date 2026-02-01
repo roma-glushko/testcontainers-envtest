@@ -82,18 +82,18 @@ with EnvtestContainer() as envtest:
 from testcontainers_envtest import EnvtestContainer
 
 # Use a specific Kubernetes version
-with EnvtestContainer(kubernetes_version="1.30.0") as envtest:
+with EnvtestContainer(kubernetes_version="1.35.0") as envtest:
     print(f"Running Kubernetes {envtest.kubernetes_version}")
 ```
 
 ## Supported Kubernetes versions
 
-- 1.27.x
-- 1.28.x
-- 1.29.x
-- 1.30.x
+- 1.35.x
+- 1.34.x
+- 1.33.x
+- 1.32.x
 - 1.31.x
 
 ## License
 
-MIT
+Apache 2.0 - see the [LICENSE](LICENSE) file for details.

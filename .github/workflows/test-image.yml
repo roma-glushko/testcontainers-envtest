@@ -1,0 +1,76 @@
+name: Test Envtest Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Docker image to test'
+        required: true
+        default: 'ghcr.io/roma-glushko/testcontainers-envtest:latest'
+  workflow_call:
+    inputs:
+      image:
+        required: true
+        type: string
+
+jobs:
+  test-go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Run Go integration tests
+        env:
+          ENVTEST_IMAGE: ${{ inputs.image }}
+        run: make -C go test-integration
+
+  test-python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.13']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: make -C python install
+
+      - name: Run Python integration tests
+        env:
+          ENVTEST_IMAGE: ${{ inputs.image }}
+        run: |
+          cd python
+          uv run --group test pytest -v -m integration
+
+  test-java:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: ['17', '21']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java-version }}
+
+      - name: Run Java integration tests
+        env:
+          ENVTEST_IMAGE: ${{ inputs.image }}
+        run: make -C java test-integration
