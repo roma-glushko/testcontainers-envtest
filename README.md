@@ -12,7 +12,7 @@ A [Testcontainers](https://testcontainers.org/) integration for [envtest](https:
 | Feature        | Envtest                        | K3s                            |
 |----------------|--------------------------------|--------------------------------|
 | Components     | kube-apiserver + etcd only     | Full Kubernetes distribution   |
-| Startup time   | ~3 seconds                     | ~8 seconds                     |
+| Startup time   | ~2.6 seconds                   | ~8.4 seconds                   |
 | Use case       | Controller/operator unit tests | Full cluster integration tests |
 | Resource usage | Minimal                        | Higher                         |
 

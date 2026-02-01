@@ -37,6 +37,10 @@ lint: tools ## Run linters
 	@echo "==> Running golangci-lint..."
 	@$(BIN_DIR)/golangci-lint run ./...
 
+bench: ## Run benchmarks
+	@echo "==> Running Go benchmarks..."
+	@go test -v -bench=. ./...
+
 build: ## Build the module
 	@echo "==> Building Go module..."
 	@go build ./...

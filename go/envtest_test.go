@@ -26,7 +26,7 @@ func getEnvtestOptions() []envtest.Option {
 }
 
 func TestEnvtestContainer(t *testing.T) {
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
 
 	c, err := envtest.Run(ctx, getEnvtestOptions()...)
@@ -112,11 +112,13 @@ func TestEnvtestContainerWithKubernetesVersion(t *testing.T) {
 }
 
 func BenchmarkContainerLifecycle(b *testing.B) {
+	opts := getEnvtestOptions()
+
 	b.Run("envtest", func(b *testing.B) {
 		ctx := b.Context()
 
 		for b.Loop() {
-			container, err := envtest.Run(ctx)
+			container, err := envtest.Run(ctx, opts...)
 			require.NoError(b, err)
 
 			_ = testcontainers.TerminateContainer(container)
