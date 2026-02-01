@@ -1,9 +1,10 @@
-package examples_test
+package client
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"testing"
 
 	"github.com/roma-glushko/testcontainers-envtest/go"
 	"github.com/testcontainers/testcontainers-go"
@@ -11,7 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func Example() {
+func TestExample(t *testing.T) {
 	ctx := context.Background()
 
 	// Start an envtest container
@@ -26,7 +27,7 @@ func Example() {
 	}()
 
 	// Get a REST config for the Kubernetes client
-	cfg, err := container.GetRESTConfig(ctx)
+	cfg, err := container.RESTConfig(ctx)
 	if err != nil {
 		log.Fatalf("failed to get REST config: %v", err)
 	}
@@ -47,8 +48,8 @@ func Example() {
 	// Output: Found 4 namespaces
 }
 
-func Example_withVersion() {
-	ctx := context.Background()
+func TestExampleWithVersion(t *testing.T) {
+	ctx := t.Context()
 
 	// Start an envtest container with a specific Kubernetes version
 	container, err := envtest.Run(ctx,
@@ -64,11 +65,11 @@ func Example_withVersion() {
 	}()
 
 	// Get the API server URL
-	url, err := container.GetAPIServerURL(ctx)
+	url, err := container.APIServerURL(ctx)
 	if err != nil {
 		log.Fatalf("failed to get API server URL: %v", err)
 	}
 
-	fmt.Printf("Kubernetes version: %s\n", container.GetKubernetesVersion())
+	fmt.Printf("Kubernetes version: %s\n", container.KubernetesVersion())
 	fmt.Printf("API Server URL: %s\n", url)
 }

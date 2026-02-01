@@ -19,7 +19,7 @@ const (
 	DefaultImage = "ghcr.io/roma-glushko/testcontainers-envtest:latest"
 
 	// DefaultKubernetesVersion is the default Kubernetes version
-	DefaultKubernetesVersion = "1.31.0"
+	DefaultKubernetesVersion = "1.35.0"
 
 	// DefaultAPIServerPort is the default port for the Kubernetes API server
 	DefaultAPIServerPort = "6443"
@@ -74,8 +74,8 @@ func Run(ctx context.Context, opts ...Option) (*EnvtestContainer, error) {
 	}, nil
 }
 
-// GetKubeconfig returns the kubeconfig YAML content for connecting to the API server
-func (c *EnvtestContainer) GetKubeconfig(ctx context.Context) (string, error) {
+// Kubeconfig returns the kubeconfig YAML content for connecting to the API server
+func (c *EnvtestContainer) Kubeconfig(ctx context.Context) (string, error) {
 	// Read the kubeconfig from the container
 	reader, err := c.CopyFileFromContainer(ctx, KubeconfigPath)
 	if err != nil {
@@ -120,8 +120,8 @@ func (c *EnvtestContainer) GetKubeconfig(ctx context.Context) (string, error) {
 	return kubeconfig, nil
 }
 
-// GetAPIServerURL returns the URL of the Kubernetes API server
-func (c *EnvtestContainer) GetAPIServerURL(ctx context.Context) (string, error) {
+// APIServerURL returns the URL of the Kubernetes API server
+func (c *EnvtestContainer) APIServerURL(ctx context.Context) (string, error) {
 	host, err := c.Host(ctx)
 	if err != nil {
 		return "", fmt.Errorf("failed to get container host: %w", err)
@@ -135,10 +135,10 @@ func (c *EnvtestContainer) GetAPIServerURL(ctx context.Context) (string, error) 
 	return fmt.Sprintf("https://%s:%s", host, port.Port()), nil
 }
 
-// GetRESTConfig returns a *rest.Config configured for the envtest API server.
+// RESTConfig returns a *rest.Config configured for the envtest API server.
 // This config can be used with client-go or controller-runtime clients.
-func (c *EnvtestContainer) GetRESTConfig(ctx context.Context) (*rest.Config, error) {
-	kubeconfig, err := c.GetKubeconfig(ctx)
+func (c *EnvtestContainer) RESTConfig(ctx context.Context) (*rest.Config, error) {
+	kubeconfig, err := c.Kubeconfig(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get kubeconfig: %w", err)
 	}
@@ -151,8 +151,8 @@ func (c *EnvtestContainer) GetRESTConfig(ctx context.Context) (*rest.Config, err
 	return config, nil
 }
 
-// GetKubernetesVersion returns the Kubernetes version of the envtest container
-func (c *EnvtestContainer) GetKubernetesVersion() string {
+// KubernetesVersion returns the Kubernetes version of the envtest container
+func (c *EnvtestContainer) KubernetesVersion() string {
 	return c.kubernetesVersion
 }
 

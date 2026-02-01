@@ -12,8 +12,7 @@ A [Testcontainers](https://testcontainers.org/) integration for [envtest](https:
 | Feature        | Envtest                        | K3s                            |
 |----------------|--------------------------------|--------------------------------|
 | Components     | kube-apiserver + etcd only     | Full Kubernetes distribution   |
-| Startup time   | ~2-5 seconds                   | ~15-30 seconds                 |
-| Privileged     | No                             | Yes (required)                 |
+| Startup time   | ~3 seconds                     | ~8 seconds                     |
 | Use case       | Controller/operator unit tests | Full cluster integration tests |
 | Resource usage | Minimal                        | Higher                         |
 
@@ -72,6 +71,7 @@ import (
     "context"
     "testing"
 
+	"github.com/stretchr/testify/require"
     "github.com/roma-glushko/testcontainers-envtest/go"
     "github.com/testcontainers/testcontainers-go"
     "k8s.io/client-go/kubernetes"
@@ -79,29 +79,26 @@ import (
 )
 
 func TestMyController(t *testing.T) {
-    ctx := context.Background()
+    ctx := t.Context()
 
     // Start an envtest container
-    container, err := envtest.Run(ctx)
-    if err != nil {
-        t.Fatalf("failed to start envtest: %v", err)
-    }
-    defer testcontainers.TerminateContainer(container)
+    k8s, err := envtest.Run(ctx)
+	require.NoError(t, err)
+    
+    defer testcontainers.TerminateContainer(k8s)
 
     // Get a REST config for the Kubernetes client
-    cfg, err := container.GetRESTConfig(ctx)
-    if err != nil {
-        t.Fatalf("failed to get REST config: %v", err)
-    }
+    cfg, err := k8s.RESTConfig(ctx)
+	require.NoError(t, err)
 
     // Create a Kubernetes clientset
     clientset, err := kubernetes.NewForConfig(cfg)
-    if err != nil {
-        t.Fatalf("failed to create client: %v", err)
-    }
+	require.NoError(t, err)
 
     // Use the client in your tests
-    namespaces, _ := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+    namespaces, err := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	require.NoError(t, err)
+	
     t.Logf("Found %d namespaces", len(namespaces.Items))
 }
 ```
@@ -110,7 +107,7 @@ func TestMyController(t *testing.T) {
 
 ```go
 container, err := envtest.Run(ctx,
-    envtest.WithKubernetesVersion("1.30.0"),
+    envtest.WithKubernetesVersion("1.34.0"),
 )
 ```
 
@@ -145,7 +142,7 @@ def test_my_controller(envtest):
 #### With a specific Kubernetes version
 
 ```python
-with EnvtestContainer(kubernetes_version="1.30.0") as envtest:
+with EnvtestContainer(kubernetes_version="1.34.0") as envtest:
     # ...
 ```
 
@@ -197,7 +194,7 @@ The Docker image is available on GitHub Container Registry:
 docker pull ghcr.io/roma-glushko/testcontainers-envtest:latest
 
 # Or a specific Kubernetes version
-docker pull ghcr.io/roma-glushko/testcontainers-envtest:v1.31.0
+docker pull ghcr.io/roma-glushko/testcontainers-envtest:v1.34.0
 ```
 
 ### Running standalone
