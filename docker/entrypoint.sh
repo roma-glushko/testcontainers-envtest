@@ -12,11 +12,19 @@ CERTS_CONF_DIR="/etc/envtest/certs"
 # Create data directory
 mkdir -p "${DATA_DIR}"
 
-# Find the correct binary directory (setup-envtest creates versioned subdirs)
-BINARY_DIR=$(find ${ENVTEST_BIN_DIR} -name "kube-apiserver" -type f -exec dirname {} \; | head -1)
+# Detect OS and architecture
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+case "${ARCH}" in
+    x86_64) ARCH="amd64" ;;
+    aarch64|arm64) ARCH="arm64" ;;
+esac
 
-if [ -z "${BINARY_DIR}" ]; then
-    echo "ERROR: Could not find envtest binaries"
+# Construct binary directory path (setup-envtest uses this structure)
+BINARY_DIR="${ENVTEST_BIN_DIR}/k8s/${KUBERNETES_VERSION}-${OS}-${ARCH}"
+
+if [ ! -d "${BINARY_DIR}" ]; then
+    echo "ERROR: Could not find envtest binaries at ${BINARY_DIR}"
     exit 1
 fi
 
@@ -37,6 +45,7 @@ if [ ! -x "${APISERVER_BINARY}" ]; then
 fi
 
 # Generate certificates for the API server
+CERT_START=$(awk '{print $1}' /proc/uptime)
 echo "Generating certificates..."
 mkdir -p "${DATA_DIR}/certs"
 
@@ -78,9 +87,12 @@ openssl x509 -req -in "${DATA_DIR}/certs/client.csr" \
     -extensions v3_req \
     -extfile "${CERTS_CONF_DIR}/client.conf" 2>/dev/null
 
-echo "Certificates generated successfully"
+CERT_END=$(awk '{print $1}' /proc/uptime)
+CERT_ELAPSED=$(awk "BEGIN {printf \"%.2f\", $CERT_END - $CERT_START}")
+echo "Certificates generated successfully in ${CERT_ELAPSED}s"
 
 # Start etcd in the background
+ETCD_START=$(awk '{print $1}' /proc/uptime)
 echo "Starting etcd on port ${ETCD_PORT}..."
 "${ETCD_BINARY}" \
     --data-dir="${DATA_DIR}/etcd" \
@@ -98,17 +110,20 @@ ETCD_PID=$!
 echo "Waiting for etcd to be ready..."
 for i in {1..30}; do
     if curl -s "http://127.0.0.1:${ETCD_PORT}/health" | grep -q "true"; then
-        echo "etcd is ready"
+        ETCD_END=$(awk '{print $1}' /proc/uptime)
+        ETCD_ELAPSED=$(awk "BEGIN {printf \"%.2f\", $ETCD_END - $ETCD_START}")
+        echo "etcd is ready in ${ETCD_ELAPSED}s"
         break
     fi
     if [ $i -eq 30 ]; then
         echo "ERROR: etcd failed to start"
         exit 1
     fi
-    sleep 1
+    sleep 0.1
 done
 
 # Start kube-apiserver
+APISERVER_START=$(awk '{print $1}' /proc/uptime)
 echo "Starting kube-apiserver on port ${API_SERVER_PORT}..."
 "${APISERVER_BINARY}" \
     --etcd-servers="http://127.0.0.1:${ETCD_PORT}" \
@@ -133,14 +148,16 @@ APISERVER_PID=$!
 echo "Waiting for kube-apiserver to be ready..."
 for i in {1..60}; do
     if curl -sk "https://localhost:${API_SERVER_PORT}/healthz" | grep -q "ok"; then
-        echo "kube-apiserver is ready"
+        APISERVER_END=$(awk '{print $1}' /proc/uptime)
+        APISERVER_ELAPSED=$(awk "BEGIN {printf \"%.2f\", $APISERVER_END - $APISERVER_START}")
+        echo "kube-apiserver is ready in ${APISERVER_ELAPSED}s"
         break
     fi
     if [ $i -eq 60 ]; then
         echo "ERROR: kube-apiserver failed to start"
         exit 1
     fi
-    sleep 1
+    sleep 0.1
 done
 
 # Generate kubeconfig

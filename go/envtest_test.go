@@ -9,6 +9,7 @@ import (
 	envtest "github.com/roma-glushko/testcontainers-envtest/go"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/k3s"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -25,7 +26,7 @@ func getEnvtestOptions() []envtest.Option {
 }
 
 func TestEnvtestContainer(t *testing.T) {
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Minute)
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
 
 	c, err := envtest.Run(ctx, getEnvtestOptions()...)
@@ -36,16 +37,16 @@ func TestEnvtestContainer(t *testing.T) {
 		require.NoError(t, err, "failed to terminate container")
 	}()
 
-	t.Run("GetAPIServerURL", func(t *testing.T) {
-		url, err := c.GetAPIServerURL(ctx)
+	t.Run("APIServerURL", func(t *testing.T) {
+		url, err := c.APIServerURL(ctx)
 		require.NoError(t, err)
 		require.NotEmpty(t, url)
 
 		t.Logf("API Server URL: %s", url)
 	})
 
-	t.Run("GetKubeconfig", func(t *testing.T) {
-		kubeconfig, err := c.GetKubeconfig(ctx)
+	t.Run("Kubeconfig", func(t *testing.T) {
+		kubeconfig, err := c.Kubeconfig(ctx)
 		require.NoError(t, err)
 		require.NotEmpty(t, kubeconfig)
 		require.Greater(t, len(kubeconfig), 100, "kubeconfig seems too short")
@@ -53,8 +54,8 @@ func TestEnvtestContainer(t *testing.T) {
 		t.Logf("Kubeconfig length: %d bytes", len(kubeconfig))
 	})
 
-	t.Run("GetRESTConfig", func(t *testing.T) {
-		cfg, err := c.GetRESTConfig(ctx)
+	t.Run("RESTConfig", func(t *testing.T) {
+		cfg, err := c.RESTConfig(ctx)
 		require.NoError(t, err)
 		require.NotNil(t, cfg)
 
@@ -72,7 +73,7 @@ func TestEnvtestContainer(t *testing.T) {
 	})
 
 	t.Run("CreateNamespace", func(t *testing.T) {
-		cfg, err := c.GetRESTConfig(ctx)
+		cfg, err := c.RESTConfig(ctx)
 		require.NoError(t, err)
 
 		clientset, err := kubernetes.NewForConfig(cfg)
@@ -100,12 +101,42 @@ func TestEnvtestContainerWithKubernetesVersion(t *testing.T) {
 	defer cancel()
 
 	container, err := envtest.Run(ctx, envtest.WithKubernetesVersion("1.35.0"))
-	require.NoError(t, err, "failed to start envtest container")
+	require.NoError(t, err)
 
 	defer func() {
 		err := testcontainers.TerminateContainer(container)
 		require.NoError(t, err)
 	}()
 
-	require.Equal(t, "1.35.0", container.GetKubernetesVersion())
+	require.Equal(t, "1.35.0", container.KubernetesVersion())
+}
+
+func BenchmarkContainerLifecycle(b *testing.B) {
+	opts := getEnvtestOptions()
+
+	b.Run("envtest", func(b *testing.B) {
+		ctx := b.Context()
+
+		for b.Loop() {
+			container, err := envtest.Run(ctx, opts...)
+			require.NoError(b, err)
+
+			_ = testcontainers.TerminateContainer(container)
+		}
+
+		b.ReportMetric(float64(b.Elapsed().Milliseconds())/float64(b.N), "ms/op")
+	})
+
+	b.Run("k3s", func(b *testing.B) {
+		ctx := b.Context()
+
+		for b.Loop() {
+			container, err := k3s.Run(ctx, "rancher/k3s:v1.31.2-k3s1")
+			require.NoError(b, err)
+
+			_ = testcontainers.TerminateContainer(container)
+		}
+
+		b.ReportMetric(float64(b.Elapsed().Milliseconds())/float64(b.N), "ms/op")
+	})
 }

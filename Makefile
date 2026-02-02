@@ -103,6 +103,7 @@ build-docker-all: ## Build Docker images for all K8s versions
 	@echo "==> Built all images"
 
 test-docker: ## Build and test Docker image
+	@docker rm -f envtest-test
 	@echo "==> Building and testing Docker image..."
 	docker build -t envtest:test --build-arg KUBERNETES_VERSION=1.35.0 ./docker
 	@echo "==> Starting container..."
@@ -110,7 +111,8 @@ test-docker: ## Build and test Docker image
 	@echo "==> Waiting for API server..."
 	@sleep 30
 	@curl -sk https://localhost:6443/healthz && echo " - Health check passed" || (docker logs envtest-test && docker rm -f envtest-test && exit 1)
-	@docker rm -f envtest-test
+	@echo "==> Running integration tests against Docker container..."
+	@ENVTEST_IMAGE=envtest:test $(MAKE) test-image
 	@echo "==> Docker test passed"
 
 # =============================================================================
