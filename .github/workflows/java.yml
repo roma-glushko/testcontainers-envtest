@@ -61,7 +61,7 @@ jobs:
         run: mvn -B package -DskipTests
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: java-package
           path: java/target/*.jar
