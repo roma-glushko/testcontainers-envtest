@@ -37,12 +37,12 @@ Documentation = "https://github.com/roma-glushko/testcontainers-envtest#readme"
 
 [dependency-groups]
 test = [
-    "pytest>=8.0.0",
+    "pytest>=9.0.3",
     "pytest-cov>=4.0.0",
     "kubernetes>=29.0.0",
 ]
 dev = [
-    "pytest>=8.0.0",
+    "pytest>=9.0.3",
     "pytest-cov>=4.0.0",
     "kubernetes>=29.0.0",
     "ruff>=0.8.0",
